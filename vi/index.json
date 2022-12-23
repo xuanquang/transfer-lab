@@ -1,0 +1,50 @@
+[
+{
+	"uri": "/vi/1-introduce/",
+	"title": "Giới thiệu dịch vụ AWS Transfer Family",
+	"tags": [],
+	"description": "",
+	"content": "AWS Transfer Family là gì? AWS Transfer Family là một dịch vụ được AWS quản lý hoàn toàn mà bạn có thể sử dụng để chuyển files đến hoặc ra khỏi Amazon Simple Storage Service (Amazon S3) hoặc Amazon Elastic File System (Amazon EFS) qua các giao thức:\nSecure Shell (SSH) File Transfer Protocol (SFTP): version 3 File Transfer Protocol Secure (FTPS) File Transfer Protocol (FTP) Applicability Statement 2 (AS2) Các giao thức chuyển files được sử dụng trong quy trình công việc trao đổi dữ liệu ở các ngành khác nhau như dịch vụ tài chính, chăm sóc sức khỏe, quảng cáo và bán lẻ\u0026hellip;Transfer Family đơn giản hóa việc chuyển đổi (migration) của quy trình công việc chuyển file sang AWS.\nĐọc thêm: AWS Transfer Family\nLợi ích của AWS Transfer Family? Một dịch vụ được quản lý hoàn toàn (fully managed service) có thể mở rộng theo thời gian thực để đáp ứng nhu cầu của bạn. Bạn không cần phải sửa đổi các ứng dụng của mình hoặc chạy bất cứ cơ sở hạ tầng giao thức truyền file nào. Với việc dữ liệu được lưu trữ lâu dài ở Amazon S3, bạn có thể sử dụng những dịch vụ AWS gốc cho các chức năng xử lý, phân tích, báo cáo, kiểm toán và lưu trữ. Với Amazon EFS như kho lưu trữ, bạn có được một hệ thống file đàn hồi được quản lý đầy đủ để sử dụng với các dịch vụ AWS Cloud và tài nguyên tại chỗ (on-premises). Amazon EFS được xây dựng để mở rộng quy mô theo yêu cầu đến petabytes mà không làm gián đoạn ứng dụng, tự động phát triển và thu hẹp khi bạn thêm và xóa files. Điều này giúp loại bỏ nhu cầu dự phòng và quản lý dung tích để thích ứng với tăng trưởng. Dịch vụ quy trình làm việc Chuyển Files phi máy chủ (serverless), được quản lý hoàn toàn giúp dễ dàng thiết lập, chạy, tự động hóa và giám sát việc xử lý các file được tải lên bằng AWS Transfer Family. Không có chi phí trả trước, và bạn chỉ phải trả tiền cho việc sử dụng dịch vụ. AWS Transfer Family hoạt động thế nào AWS Transfer Family an toàn quy mô khi định kỳ chuyển files từ doanh nghiệp của bạn đến các dịch vụ AWS Storage bằng cách sử dụng các giao thức SFTP, FTPS, FTP và AS2.\n"
+},
+{
+	"uri": "/vi/",
+	"title": "Giới thiệu về bài lab này",
+	"tags": [],
+	"description": "",
+	"content": "Về bài lab này Tổng thể Trong bài lab này, bạn sẽ sử dụng dịch vụ AWS Transfer Family để thiết lập quyền truy cập SFTP vào một S3 bucket nhằm quản lý các files trong S3 bucket đó.\nLưu ý quan trọng: Nếu tài nguyên bạn sử dụng cho bài lab này không bị xóa, bạn sẽ phải trả phí cho tài khoản AWS của mình. Content Giới thiệu Chuẩn bị Thiết lập SFTP để tải files lên S3 Dọn dẹp tài nguyên "
+},
+{
+	"uri": "/vi/2-pre-requisite/",
+	"title": "Chuẩn bị",
+	"tags": [],
+	"description": "",
+	"content": "Kịch bản Để chuyển files trong công ty của bạn,bạn cần thiết lập một máy chủ SFTP với AWS Transfer Family. Chúng ta sẽ sử dụng một S3 bucket đóng vai trò như backend của SFTP Server. Chúng ta sử dụng dịch vụ IAM để xác minh quyền truy cập vào S3 bucket.\nChuẩn bị Cài đặt FileZilla Tải xuống và cài đặt FileZilla trên máy tính của bạn.\nTạo một S3 bucket Bạn tạo một S3 bucket.\nTên của bucket phải là duy nhất(xem Quy tắc đặt tên Bucket). Ở bài lab này, tôi sử dụng S3 bucket có tên là my-sftp-1903, nhưng bạn nên sử dụng tên khác cho S3 bucket của mình.\nTạo một IAM role Chúng ta sẽ tạo IAM role and policy, điều cần thiết để có thể truy cập vào S3 Bucket từ SFTP Server. Trước tiên, bạn cần tạo một IAM policy.\nMở bảng điều khiển IAM.\nTrên bảng điều khiển bên trái, chọn Polices rồi click Create policy. Trong tab Visual editor, hãy tìm và chọn S3. Trong Actions, chúng ta phải chọn:\n- List: ListBucket - Read: GetBucketLocation;\nCuộn xuống. Trong Resources: chúng ta click vào Specify bucket resource\u0026hellip; rồi click Add ARN. Ở cửa sổ pop-up, bạn nhập tên S3 bucket của bạn rồi click Add. Kết quả sẽ tương tự như hình bên dưới. Click Add additional permissions: Khá tương tự với những bước trước:\nTìm kiếm và chọn S3. Trong Actions, chúng ta cần chọn:\nRead: GetObject; GetObjectVersion; Write: PutObject; DeleteObject; DeleteObjectVersion. Trong Resources: chúng ta mở rộng và click Add ARN Ở cửa sổ pop-up, bạn nhập tên S3 bucket của bạn, chọn Any rồi click Add. Kết quả tương tự như hình bên dưới. Click Next: Tags. Click Next Review. Bạn nhập tên và mô tả rồi click Create policy.\nName: sftp-readwrite-policy Description: sftp-readwrite-policy Bạn mở bảng điều khiển IAM . Ở bảng điều khiển bên trái, chọn Roles rồi click Create role. Chọn AWS service. Rồi cuộn xuống: Tìm kiếm dich vụ Transfer Cho phép AWS Transfer to call AWS services on your behalf Click Next. Tìm kiếm policy tùy chỉnh mà chúng ta vừa mới tạo (sftp-readwrite-policy ). Click vào policy rồi click Next. Bạn nhập tên role (sftp-access-s3). Xem lại chi tiết role. Click Create role. "
+},
+{
+	"uri": "/vi/3-set-up-sftp/",
+	"title": "Thiết lập SFTP để tải files lên S3",
+	"tags": [],
+	"description": "",
+	"content": "Tạo một SFTP Server với AWS Transfer Family Mở bảng điều khiển Amazon Transfer Family Chọn Create server. Step 1 (Choose protocols): Có 4 tùy chọn. Trong bài lab này, chúng ta chọn SFTP rồi click Next. Step 2 (Choose an identity provider): Chọn Service managed rồi click Next. Step 3 (Choose an endpoint): Chọn Publicly accessible và click Next. Step 4 (Choose a domain): Chọn Amazon S3 và click Next. Step 5 (Configure additional details): Chọn Create a new role rồi click Next. Step 6 (Review and create): Chúng ta xem lại chi tiết của SFTP Server và nhấp vào Create server Máy chủ sẽ sẵn sàng trong vài phút nữa. Như bạn thấy trạng thái (state) đang là Starting. Nhưng bạn có thể nhấp vào SFTP Server và xem máy chủ trông như thế nào (nhớ lưu lại Endpoint URL cho các bước tiếp theo). Đến lúc này, chúng ta đã có SFTP server khởi chạy có S3 bucket làm nguồn.\nAdd an SFTP user Nhấp vào Add user. Bạn nhập Username, chọn IAM role, S3 bucket của bạn, dán SSH public keys. Rồi nhấp vào Add.\nUsername: ant Role: sftp-access-s3 (người dùng có thể đọc từ S3) Policy: None Home directory: Trường 1: chọn S3 bucket của bạn Trường 2: bỏ trống Restricted: không chọn. SSH public keys: đọc hướng dẫn bên dưới. Tạo SSH keys Với lệnh này, chúng ta tạo một cặp khóa SSH (sftp_s3 (khóa riêng tư) and sftp_s3.pub (khóa công khai)): ssh-keygen -m PEM -f sftp_s3 Sử dụng lệnh cat sftp_s3.pub để hiển thị nội dung của khóa sftp_s3.pub. Sao chép nó và dán vào phần SSH public key. Chúng ta đã tạo thành công SFTP server với một người dùng. Sử dụng FileZilla với SFTP Server Mở FileZilla:\nTừ menu trên cùng, chọn File Chọn Site Manager Nhấp New site Nhập tên sftp-s3 Chọn tab General:\nProtocol: SFTP Host: Endpoint URL Logon Type: Key file User: ant Key file: Bạn nhấn vào Browser rồi chọn đường dẫn đến nơi lưu khóa sftp_s3 key trên máy của bạn Nhấn Connect. Với cửa sổ pop-up, chọn Save passwords, rồi click OK và Connect.\nNhấn vào OK.\nChúng ta đã kết nối thành công với SFTP Server với FileZilla Tải files từ máy tính của bạn lên SFTP Server.\nBạn tìm đến thư mục chứa các files, chọn chúng, nhấp phải chuột, rồi chọn Upload. 17. Các Files đã được tải lên. 18. Mở S3 bucket, bạn sẽ thấy các files mà chúng ta vừa tải lên. Xóa một file khỏi S3 bucket. Bạn chọn một file rồi nhấn Delete.\nNhập permanently delete rồi click Delete Object. Nhấp phải chuột ở khu vực bên phải và chọn Refresh. Chỉ còn có 02 files có thể xem được. Xóa files khỏi SFTP Server bằng FileZilla. Bạn chọn 02 files, nhấp phải, rồi chọn Delete. Click Yes. S3 bucket của bạn sẽ trống rỗng.\n"
+},
+{
+	"uri": "/vi/4-cleanup/",
+	"title": "Dọn dẹp tài nguyên",
+	"tags": [],
+	"description": "",
+	"content": "Để xóa những tài nguyên đã tạo trong bài lab này, cần thực hiện như sau:\nXóa SFTP Server Mở bảng điều khiển AWS Transfer Family. Chọn *Servers ở bảng điều khiển bên trái. Chọn SFTP Server. Nhấn vào Actions Nhấn Delete Nhập delete và nhấn vào Delete. Xóa AWS IAM Role và Policy Mở bảng điều khiển Amazon IAM Ở bảng điều khiển bên trái, chọn Roles - Tìm kiếm và chọn sftp-access-s3 - Nhấn vào Delete. Nhập sftp-access-s3 và chọn Delete. Ở bảng điều khiển bên trái:\n- Chọn Policies\n- Tìm kiếm và chọn sftp-readwrite-policy\n- Nhấn vào Action rồi chọn Delete. Nhập vào sftp-readwrite-policy và chọn Delete. Xóa S3 bucket Mở bảng điều khiển Amazon S3. Chọn S3 bucket, click Delete. Nhập tên S3 bucket của bạn và click Delete bucket. "
+},
+{
+	"uri": "/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]

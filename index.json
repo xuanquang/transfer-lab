@@ -1,0 +1,50 @@
+[
+{
+	"uri": "/",
+	"title": "About this lab",
+	"tags": [],
+	"description": "",
+	"content": "About this lab Overall In this lab, you will use AWS Transfer Family to setup SFTP access to an Amazon S3 bucket in order to manage files in the Amazon S3 bucket.\nImportant: If the resources that you use for this lab are left undeleted, you will incur charges on your AWS account. Content Introduction Pre-requisite Set up SFTP to upload files to S3 Clean up resources "
+},
+{
+	"uri": "/1-introduce/",
+	"title": "Introducing the AWS Transfer Family",
+	"tags": [],
+	"description": "",
+	"content": "What is AWS Transfer Family? AWS Transfer Family is a fully managed AWS service that you can use to transfer files into and out of Amazon Simple Storage Service (Amazon S3) storage or Amazon Elastic File System (Amazon EFS) file systems over the following protocols:\nSecure Shell (SSH) File Transfer Protocol (SFTP): version 3 File Transfer Protocol Secure (FTPS) File Transfer Protocol (FTP) Applicability Statement 2 (AS2) File transfer protocols are used in data exchange workflows across different industries such as financial services, healthcare, advertising, and retail, among others. Transfer Family simplifies the migration of file transfer workflows to AWS.\nRead more: AWS Transfer Family\nBenefits Of AWS Transfer Family? A fully managed service that scales in real time to meet your needs. You don\u0026rsquo;t need to modify your applications or run any file transfer protocol infrastructure. With your data in durable Amazon S3 storage, you can use native AWS services for processing, analytics, reporting, auditing, and archival functions. With Amazon EFS as your data store, you get a fully managed elastic file system for use with AWS Cloud services and on-premises resources. Amazon EFS is built to scale on demand to petabytes without disrupting applications, growing and shrinking automatically as you add and remove files. This helps eliminate the need to provision and manage capacity to accommodate growth. A fully managed, serverless File Transfer Workflow service that makes it easy to set up, run, automate, and monitor processing of files uploaded using AWS Transfer Family. There are no upfront costs, and you pay only for the use of the service. How it works AWS Transfer Family securely scales your recurring business-to-business file transfers to AWS Storage services using SFTP, FTPS, FTP, and AS2 protocols.\n"
+},
+{
+	"uri": "/2-pre-requisite/",
+	"title": "Pre-requisite",
+	"tags": [],
+	"description": "",
+	"content": "Scenario To transfer files in your company, you set up an SFTP server with AWS Transfer Family. We will use an S3 bucket as the SFTP Server\u0026rsquo;s backend. We use IAM service to verify access to the S3 bucket.\nPre-requisite Install FileZilla Download and install FileZilla on your computer.\nCreate an S3 bucket You create an S3 bucket.\nThe name of the bucket must be unique (view Bucket naming rules). In this lab, I use the S3 bucket named my-sftp-1903, but you should use another name for your S3 bucket.\nCreate an IAM role We will create an IAM role and policy, which are needed from the SFTP Server to access the S3 Bucket. First, you need to create an IAM policy.\nOpen the IAM console.\nOn the left panel, select Polices and then click Create policy. In the Visual editor tab, look for and select S3. In Actions, we have to choose only option:\n- List: ListBucket - Read: GetBucketLocation;\nScroll down. In Resources: we click on Specify bucket resource\u0026hellip; and then click Add ARN. At the pop-up window, you enter your bucket name and then click on Add. The answer will look like the image below. Click Add additional permissions: Extremely similar to the previous steps:\nLook for and choose S3. In Actions, we must choose:\nRead: GetObject; GetObjectVersion; Write: PutObject; DeleteObject; DeleteObjectVersion. In Resources: we expand and click on Add ARN At the pop-up window, you enter your bucket name, select Any and then click on Add. The answer will look like the image below. Click Next: Tags. Click Next Review. You type in the name and the description and click Create policy.\nName: sftp-readwrite-policy Description: sftp-readwrite-policy You open the IAM console. On the left panel, select Roles and then click Create role. Select AWS service. Then scroll down: Look for Transfer service Allow AWS Transfer to call AWS services on your behalf Click Next. Search for our custom policy (sftp-readwrite-policy ). Click on the policy and then click Next. You type in the role name (sftp-access-s3). Review the role details. Click Create role. "
+},
+{
+	"uri": "/3-set-up-sftp/",
+	"title": "Set up SFTP to upload files to S3",
+	"tags": [],
+	"description": "",
+	"content": "Create an SFTP Server with AWS Transfer Family Open the Amazon Transfer Family console Choose Create server. Step 1 (Choose protocols): There are four options. In this lab, we have to choose SFTP and then click Next. Step 2 (Choose an identity provider): Choose Service managed and then click Next. Step 3 (Choose an endpoint): Choose Publicly accessible and then click Next. Step 4 (Choose a domain): Choose Amazon S3 and then click Next. Step 5 (Configure additional details): Choose Create a new role and then click Next. Step 6 (Review and create): We review the SFTP Server details and then click Create server The server should be ready in a few minutes. This state is Starting as you can see. But you can click the SFTP Server and see what the server looks like (save the Endpoint URL for next steps). So far, we have only the SFTP server running with the S3 bucket as the source.\nAdd an SFTP user Click Add user. You type in the Username, choose the IAM role, your S3 bucket, paste SSH public keys. Then click Add.\nUsername: ant Role: sftp-access-s3 (the user to be able to read from S3) Policy: None Home directory: field 1: choose Your S3 bucket field 2: empty Restricted: don\u0026rsquo;t select. SSH public keys: read the below guide. Create SSH keys With this command, we generate an SSH key pair (sftp_s3 (private key) and sftp_s3.pub (public key)): ssh-keygen -m PEM -f sftp_s3 Using the command cat sftp_s3.pub to display the content of the sftp_s3.pub key. We copy it and paste it into the SSH public key section. We successfully created an SFTP server with an SFTP user. Using FileZilla with the SFTP Server Open FileZilla:\nFrom the top menu, select File Select Site Manager Click New site Input name sftp-s3 Select the General tab:\nProtocol: SFTP Host: Endpoint URL Logon Type: Key file User: ant Key file: You click Browser and then select the path to the sftp_s3 key on your computer. Click Connect. With the window pop-up, select Save passwords, then click OK and Connect.\nClick OK.\nWe successful connect to the SFTP Server with FileZilla Upload files from your computer to the SFTP Server.\nYou navigate to the folder containing the files, select them, right-click your mouse, and select Upload. 17. Files were upload. 18. Open the S3 bucket, you will see the files that we have just uploaded. Delete a file from your S3 bucket. You select a file and then press the Delete button.\nType permanently delete and then click Delete Object. Right-click your mouse in the right zone and select Refresh. There is only two files viewable. Delete files from the SFTP Server with FileZilla. You select two files, right-click, and then select Delete. Click Yes. Your S3 bucket will be empty.\n"
+},
+{
+	"uri": "/4-cleanup/",
+	"title": "Clean up resources",
+	"tags": [],
+	"description": "",
+	"content": "To delete the resources we created during this lab, we will do the following.\nDelete the SFTP Server Open the AWS Transfer Family console. Select *Servers on the left panel. Select the SFTP Server. Click Actions Click Delete Type in delete and then click Delete. Delete AWS IAM Role and Policy Open the Amazon IAM console On the left panel, select Roles - Search for and select sftp-access-s3 - Click Delete. Type in sftp-access-s3 and then click Delete. On the left panel:\n- Select Policies\n- Search for and select sftp-readwrite-policy\n- Click Action and then click Delete. Type in sftp-readwrite-policy and then click Delete. Delete the S3 bucket Open the Amazon S3 console. Select the S3 bucket, click Delete. Type your S3 bucket name and click Delete bucket. "
+},
+{
+	"uri": "/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
